@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sportivas - Prévention Santé et Motivation Sportive</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <!-- Page de connexion -->
+    <div id="login-page" class="container">
+        <div class="login-container">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h2 class="mb-0">Sportivas</h2>
+                    <p class="mb-0">Prévention Santé et Motivation Sportive</p>
+                </div>
+                <div class="card-body p-4">
+                    <div id="login-error-message" class="alert alert-danger mb-3" style="display: none;">
+                        Erreur de connexion: identifiants incorrects
+                    </div>
+                    <form id="login-form">
+                        <div class="mb-3">
+                            <label for="insurance-number" class="form-label">Numéro de contrat d'assurance</label>
+                            <input type="text" class="form-control" id="insurance-number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mot de passe</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">Demo: 123456789 / password123</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page principale -->
+    <div id="dashboard-page" class="hidden">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="#">Sportivas</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#dashboard-section">Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#sports-section">Sports</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#injuries-section">Blessures</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#performances-section">Performances</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#planning-section">Planning</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center">
+                        <span class="points-badge me-3">
+                            <i class="fas fa-medal"></i> <span id="performance-points">0</span> pts
+                        </span>
+                        <button id="logout-btn" class="btn btn-outline-light">
+                            <i class="fas fa-sign-out-alt"></i> Déconnexion
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Contenu principal -->
+        <div class="container py-4">
+            <!-- Dashboard -->
+            <section id="dashboard-section" class="mb-5">
+                <h2 class="mb-4">Bienvenue sur votre tableau de bord</h2>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-heart feature-icon"></i>Suggestion du jour</h5>
+                            </div>
+                            <div class="card-body">
+                                <p id="sport-suggestion" class="lead">Chargement de votre suggestion...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-dumbbell feature-icon"></i>Mes sports</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="user-sports">
+                                    <p>Chargement de vos sports...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card shadow">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="fas fa-calendar-alt feature-icon"></i>Séances à venir</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="upcoming-sessions">
+                                    <p>Chargement de vos séances...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Sports -->
+            <section id="sports-section" class="mb-5 hidden">
+                <h2 class="mb-4">Mes sports</h2>
+                
+                <div class="card shadow mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Ajouter un sport</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="sports-list" class="mb-3">
+                            <p>Chargement des sports disponibles...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0">Mes sports favoris</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="my-sports-list">
+                            <p>Chargement de vos sports...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Blessures -->
+            <section id="injuries-section" class="mb-5 hidden">
+                <h2 class="mb-4">Mes blessures</h2>
+                
+                <div class="card shadow mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Ajouter une blessure</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="add-injury-form">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="body-part" class="form-label">Zone du corps</label>
+                                    <input type="text" class="form-control" id="body-part" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="pain-type" class="form-label">Type de douleur</label>
+                                    <input type="text" class="form-control" id="pain-type" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="injury-date" class="form-label">Date de la blessure</label>
+                                    <input type="date" class="form-control" id="injury-date" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="recovery-date" class="form-label">Date de guérison (optionnel)</label>
+                                    <input type="date" class="form-control" id="recovery-date">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="injury-description" class="form-label">Description</label>
+                                <textarea class="form-control" id="injury-description" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Ajouter</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0">Historique de mes blessures</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="injuries-list">
+                            <p>Chargement de vos blessures...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Performances -->
+            <section id="performances-section" class="mb-5 hidden">
+                <h2 class="mb-4">Mes performances</h2>
+                
+                <div class="card shadow mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Ajouter une performance</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="add-performance-form">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="performance-date" class="form-label">Date</label>
+                                    <input type="date" class="form-control" id="performance-date" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="steps" class="form-label">Nombre de pas</label>
+                                    <input type="number" class="form-control" id="steps" min="0">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="calories" class="form-label">Calories brûlées</label>
+                                    <input type="number" class="form-control" id="calories" min="0">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="distance" class="form-label">Distance (km)</label>
+                                    <input type="number" class="form-control" id="distance" min="0" step="0.01">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="heart-rate" class="form-label">Fréquence cardiaque</label>
+                                    <input type="number" class="form-control" id="heart-rate" min="0">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Ajouter</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0">Historique de mes performances</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="performances-list">
+                            <p>Chargement de vos performances...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Planning -->
+            <section id="planning-section" class="mb-5 hidden">
+                <h2 class="mb-4">Mon planning sportif</h2>
+                
+                <div class="card shadow mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Ajouter une séance</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="add-session-form">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="session-sport" class="form-label">Sport</label>
+                                    <select class="form-select" id="session-sport" required>
+                                        <option value="">Sélectionnez un sport</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="session-date" class="form-label">Date</label>
+                                    <input type="date" class="form-control" id="session-date" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="start-time" class="form-label">Heure de début</label>
+                                    <input type="time" class="form-control" id="start-time" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="end-time" class="form-label">Heure de fin</label>
+                                    <input type="time" class="form-control" id="end-time" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="session-notes" class="form-label">Notes</label>
+                                <textarea class="form-control" id="session-notes" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Ajouter</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h5 class="mb-0">Mes séances à venir</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="sessions-list">
+                            <p>Chargement de vos séances...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Popup de ressenti quotidien -->
+    <div id="mood-popup" class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Comment vous sentez-vous aujourd'hui ?</h5>
+        </div>
+        <div class="card-body text-center">
+            <div class="d-flex justify-content-center mb-3">
+                <button class="btn btn-light emoji-btn feeling-btn" data-feeling="HAPPY">😊</button>
+                <button class="btn btn-light emoji-btn feeling-btn" data-feeling="NEUTRAL">😐</button>
+                <button class="btn btn-light emoji-btn feeling-btn" data-feeling="SAD">😞</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de changement de mot de passe -->
+    <div id="change-password-modal" class="hidden position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center auth-modal">
+        <div class="card shadow" style="max-width: 500px;">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Changement de mot de passe obligatoire</h5>
+            </div>
+            <div class="card-body">
+                <p>Vous devez changer votre mot de passe initial pour continuer.</p>
+                <div id="password-error-message" class="alert alert-danger mb-3" style="display: none;">
+                    Erreur lors du changement de mot de passe
+                </div>
+                <div id="password-success-message" class="alert alert-success mb-3" style="display: none;">
+                    Mot de passe changé avec succès
+                </div>
+                <form id="change-password-form">
+                    <div class="mb-3">
+                        <label for="old-password" class="form-label">Ancien mot de passe</label>
+                        <input type="password" class="form-control" id="old-password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new-password" class="form-label">Nouveau mot de passe</label>
+                        <input type="password" class="form-control" id="new-password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm-password" class="form-label">Confirmer le mot de passe</label>
+                        <input type="password" class="form-control" id="confirm-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Changer le mot de passe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="/js/app.js"></script>
+</body>
+</html>
