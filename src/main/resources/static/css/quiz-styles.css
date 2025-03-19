@@ -1,0 +1,58 @@
+/* CSS pour le quiz overlay */
+.quiz-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Fond transparent noir */
+    z-index: 9999; /* S'assurer qu'il est au-dessus de tout */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.quiz-container {
+    width: 90%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.quiz-container .card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.emoji-btn {
+    font-size: 1.2rem;
+    margin: 0 5px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.emoji-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+#close-quiz-btn {
+    transition: all 0.3s ease;
+}
+
+#close-quiz-btn:hover {
+    transform: scale(1.2);
+}
+
+/* Responsivité pour les petits écrans */
+@media (max-width: 768px) {
+    .d-flex.justify-content-center.mb-3 {
+        flex-wrap: wrap;
+    }
+
+    .emoji-btn {
+        margin: 5px;
+        min-width: 120px;
+    }
+}
