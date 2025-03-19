@@ -221,52 +221,16 @@
             
             <!-- Performances -->
             <section id="performances-section" class="mb-5 hidden">
-                <h2 class="mb-4">Mes performances</h2>
-                
-                <div class="card shadow mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Ajouter une performance</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="add-performance-form">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="performance-date" class="form-label">Date</label>
-                                    <input type="date" class="form-control" id="performance-date" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="steps" class="form-label">Nombre de pas</label>
-                                    <input type="number" class="form-control" id="steps" min="0">
-                                </div>
+                <div id="content">
+                    <div class="container my-4">
+                        <h2 class="text-center mb-4">Chargement du suivi de performances...</h2>
+                        <div class="d-flex justify-content-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Chargement...</span>
                             </div>
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label for="calories" class="form-label">Calories brûlées</label>
-                                    <input type="number" class="form-control" id="calories" min="0">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="distance" class="form-label">Distance (km)</label>
-                                    <input type="number" class="form-control" id="distance" min="0" step="0.01">
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="heart-rate" class="form-label">Fréquence cardiaque</label>
-                                    <input type="number" class="form-control" id="heart-rate" min="0">
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Ajouter</button>
-                        </form>
-                    </div>
-                </div>
-                
-                <div class="card shadow">
-                    <div class="card-header">
-                        <h5 class="mb-0">Historique de mes performances</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="performances-list">
-                            <p>Chargement de vos performances...</p>
                         </div>
                     </div>
+                </div>
                 </div>
             </section>
             
@@ -432,6 +396,7 @@
     </script>
 
     <!-- Custom JS -->
+    <script src="/js/performance.js"></script>
     <script src="/js/app.js"></script>
 </body>
 </html>

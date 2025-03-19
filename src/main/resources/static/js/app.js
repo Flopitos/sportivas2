@@ -663,6 +663,11 @@ const uiManager = {
                         link.classList.remove('active');
                     });
                     e.target.classList.add('active');
+                    
+                    // Charger les données spécifiques pour certains onglets
+                    if (targetId === '#performances-section') {
+                        performanceModule.renderPerformanceTab();
+                    }
                 }
             }
             
