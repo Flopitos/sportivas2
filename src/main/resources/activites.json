@@ -184,7 +184,6 @@
         "sport_type": "Walk",
         "id": 13876266706,
         "start_date": "2025-03-13T20:06:00Z",
-        "start_date_local": "2025-03-13T21:06:00Z",
         "timezone": "(GMT+01:00) Europe/Paris",
         "utc_offset": 3600.0,
         "location_city": null,
