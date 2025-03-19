@@ -222,10 +222,10 @@ const sportService = {
 
     async addSportToUser(sportId, frequency, level) {
         try {
-            console.log(`Adding sport with ID: ${sportId}`);
+            console.log(`Adding sport with ID: ${sportId}, frequency: ${frequency}, level: ${level}`);
 
-            // Utiliser un endpoint de débogage GET sans paramètres du tout
-            const response = await fetch(`${SPORTS_URL}/debug-add`, {
+            // Utiliser l'API simplifiée au lieu de l'endpoint debug-add
+            const response = await fetch(`/api/simple/add-sport/${sportId}?frequency=${encodeURIComponent(frequency || 'Occasionnel')}&level=${encodeURIComponent(level || 'Débutant')}`, {
                 method: 'GET',
                 headers: userService.getHeaders()
             });
@@ -248,8 +248,9 @@ const sportService = {
 
     async removeSportFromUser(userSportId) {
         try {
-            const response = await fetch(`${SPORTS_URL}/user/${userSportId}`, {
-                method: 'DELETE',
+            // Utiliser l'API simplifiée
+            const response = await fetch(`/api/simple/remove-sport/${userSportId}`, {
+                method: 'GET',
                 headers: userService.getHeaders()
             });
 
@@ -257,7 +258,7 @@ const sportService = {
                 throw new Error('Failed to remove sport');
             }
 
-            return true;
+            return await response.json();
         } catch (error) {
             console.error('Remove sport error:', error);
             throw error;
@@ -610,12 +611,9 @@ const uiManager = {
 
                 this.showLoading();
                 console.log("Calling sportService.addSportToUser");
-                // Stocker les valeurs pour l'affichage
-                const selectedFrequency = frequency;
-                const selectedLevel = level;
 
-                // Appel simplifié qui ignore frequency et level
-                sportService.addSportToUser(sportId)
+                // Appel avec tous les paramètres
+                sportService.addSportToUser(sportId, frequency, level)
                     .then((result) => {
                         console.log("Sport added successfully:", result);
                         this.hideLoading();
@@ -750,13 +748,20 @@ const uiManager = {
     showLoading() {
         // Fonction pour afficher un indicateur de chargement
         console.log('Loading...');
-        // Implémenter l'affichage d'un spinner ou autre indicateur
+        // Créer et ajouter un spinner comme dans le premier fichier
+        const loadingEl = document.createElement('div');
+        loadingEl.classList.add('loading');
+        loadingEl.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+        document.body.appendChild(loadingEl);
     },
 
     hideLoading() {
         // Fonction pour masquer l'indicateur de chargement
         console.log('Loading complete');
-        // Implémenter la suppression du spinner ou autre indicateur
+        const loadingEl = document.querySelector('.loading');
+        if (loadingEl) {
+            loadingEl.remove();
+        }
     },
 
     loadDashboardData() {
@@ -928,97 +933,198 @@ const uiManager = {
 
                     mySportsList.appendChild(table);
 
-                    // Gestion des événements pour la suppression des sports
+                    // Utiliser une délégation d'événements pour le tableau entier
                     table.addEventListener('click', function(e) {
-                        const target = e.target.closest('.remove-sport-btn');
-                        if (target) {
-                            e.preventDefault();
-                            const userSportId = target.dataset.id;
-                            const row = target.closest('tr');
+                        // Vérifier si le clic était sur un bouton de suppression ou un de ses enfants
+                        let target = e.target;
+                        while (target != this) {
+                            if (target.classList.contains('remove-sport-btn')) {
+                                e.preventDefault(); // Empêcher toute action par défaut
 
-                            uiManager.showLoading();
+                                const userSportId = target.dataset.id;
 
-                            // Appel API pour supprimer le sport
-                            fetch(`/api/simple/remove-sport/${userSportId}`)
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        row.remove();
-                                        // Message de succès
-                                        const feedback = document.createElement('div');
-                                        feedback.className = 'alert alert-success mt-3';
-                                        feedback.textContent = 'Sport supprimé avec succès!';
-                                        mySportsList.prepend(feedback);
-                                        setTimeout(() => feedback.remove(), 3000);
+                                // Stocker la référence à la ligne avant d'appeler l'API
+                                const row = target.closest('tr');
 
-                                        // Rafraîchir le dashboard
-                                        uiManager.loadDashboardData();
-                                    } else {
-                                        // Message d'erreur
-                                        const feedback = document.createElement('div');
-                                        feedback.className = 'alert alert-danger mt-3';
-                                        feedback.textContent = 'Erreur: ' + (data.message || 'Échec de suppression');
-                                        mySportsList.prepend(feedback);
-                                        setTimeout(() => feedback.remove(), 3000);
-                                    }
-                                    uiManager.hideLoading();
-                                })
-                                .catch(error => {
-                                    console.error('Remove sport error:', error);
-                                    const feedback = document.createElement('div');
-                                    feedback.className = 'alert alert-danger mt-3';
-                                    feedback.textContent = 'Erreur réseau: ' + error.message;
-                                    mySportsList.prepend(feedback);
-                                    setTimeout(() => feedback.remove(), 3000);
-                                    uiManager.hideLoading();
-                                });
+                                uiManager.showLoading();
+
+                                // Utiliser l'API simplifiée pour supprimer
+                                fetch(`/api/simple/remove-sport/${userSportId}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        uiManager.hideLoading();
+                                        console.log('Remove sport response:', data);
+
+                                        if (data.success) {
+                                            // Feedback visuel
+                                            const feedbackEl = document.createElement('div');
+                                            feedbackEl.className = 'alert alert-success';
+                                            feedbackEl.innerHTML = data.message || 'Sport supprimé avec succès !';
+                                            feedbackEl.style.marginTop = '10px';
+                                            mySportsList.prepend(feedbackEl);
+
+                                            // Faire disparaître visuellement la ligne
+                                            row.style.backgroundColor = '#ffdddd';
+                                            row.style.transition = 'background-color 0.5s, opacity 0.5s';
+                                            row.style.opacity = '0';
+
+                                            // Attendre un moment puis actualiser complètement la liste
+                                            setTimeout(() => {
+                                                // Rafraîchir complètement la liste
+                                                uiManager.loadUserSportsList();
+                                                uiManager.loadDashboardData();
+
+                                                // Supprimer le message de succès après un délai
+                                                setTimeout(() => {
+                                                    if (feedbackEl && feedbackEl.parentNode) {
+                                                        feedbackEl.remove();
+                                                    }
+                                                }, 1500);
+                                            }, 500);
+                                        } else {
+                                            throw new Error(data.message || 'Erreur lors de la suppression du sport');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        uiManager.hideLoading();
+                                        console.error('Remove sport error:', error);
+
+                                        // Feedback visuel en cas d'erreur
+                                        const feedbackEl = document.createElement('div');
+                                        feedbackEl.className = 'alert alert-danger';
+                                        feedbackEl.innerHTML = 'Erreur lors de la suppression du sport: ' + error.message;
+                                        mySportsList.prepend(feedbackEl);
+
+                                        setTimeout(() => {
+                                            if (feedbackEl && feedbackEl.parentNode) {
+                                                feedbackEl.remove();
+                                            }
+                                        }, 3000);
+                                    });
+
+                                return; // Sortir de la boucle
+                            }
+                            target = target.parentNode;
+                            if (!target) break;
                         }
                     });
                 }
             })
             .catch(error => {
                 console.error('Get user sports error:', error);
-                document.getElementById('my-sports-list').innerHTML =
-                    '<div class="alert alert-danger">Erreur lors du chargement des sports</div>';
+
+                const mySportsList = document.getElementById('my-sports-list');
+                mySportsList.innerHTML = `
+                    <div class="alert alert-danger">
+                        Erreur lors du chargement des sports: ${error.message}
+                    </div>
+                `;
             });
     }
 };
 
-// Gestion de la modal d'ajout de sport
+// Fonction globale pour ouvrir la modal d'ajout de sport
+// Cette fonction doit être dans le scope global pour être appelée par le onclick
+window.openSportModal = function(sportId, sportName) {
+    console.log(`Ouverture de la modal pour le sport ID: ${sportId}, Nom: ${sportName}`);
+
+    // Définir les valeurs dans la modal
+    document.getElementById('modal-sport-id').value = sportId;
+    document.getElementById('modal-sport-name').textContent = sportName;
+
+    // Réinitialiser les champs de formulaire
+    document.getElementById('modal-sport-frequency').value = '';
+    document.getElementById('modal-sport-level').value = '';
+
+    // Ouvrir la modal avec Bootstrap
+    const modalEl = document.getElementById('sportDetailsModal');
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+};
+
+// Initialiser l'application quand le DOM est chargé
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM content loaded, initializing application');
+
     // Gestion du bouton d'ajout de sport dans la modal
     const submitBtn = document.getElementById('submit-sport-details');
     if (submitBtn) {
-        submitBtn.addEventListener('click', () => {
+        submitBtn.addEventListener('click', function() {
             const sportId = document.getElementById('modal-sport-id').value;
             const frequency = document.getElementById('modal-sport-frequency').value;
             const level = document.getElementById('modal-sport-level').value;
 
-            // Fermer la modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('sportDetailsModal'));
-            if (modal) modal.hide();
+            console.log("submit-sport-details clicked with values:", { sportId, frequency, level });
 
-            // Appeler l'API pour ajouter le sport
+            if (!frequency || !level) {
+                // Afficher un message d'erreur
+                const feedback = document.getElementById('sport-modal-feedback');
+                feedback.innerHTML = '<div class="alert alert-danger">Veuillez remplir tous les champs.</div>';
+                setTimeout(() => {
+                    feedback.innerHTML = '';
+                }, 3000);
+                return;
+            }
+
+            // Fermer la modal
+            const modalEl = document.getElementById('sportDetailsModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
+            // Afficher le chargement
             uiManager.showLoading();
-            sportService.addSportToUser(sportId)
-                .then(() => {
-                    uiManager.loadSportsTab();
-                    uiManager.loadDashboardData();
+
+            // Appeler l'API simplifiée
+            fetch(`/api/simple/add-sport/${sportId}?frequency=${encodeURIComponent(frequency)}&level=${encodeURIComponent(level)}`)
+                .then(response => response.json())
+                .then(data => {
                     uiManager.hideLoading();
+
+                    // Afficher message de succès
+                    const feedback = document.getElementById('add-sport-feedback');
+                    if (data.success) {
+                        feedback.innerHTML = `
+                            <div class="alert alert-success">
+                                Sport ajouté avec succès !
+                            </div>
+                        `;
+
+                        // Rafraîchir les données
+                        uiManager.loadUserSportsList();
+                        uiManager.loadDashboardData();
+                    } else {
+                        feedback.innerHTML = `
+                            <div class="alert alert-danger">
+                                Erreur: ${data.message || 'Erreur inconnue'}
+                            </div>
+                        `;
+                    }
+
+                    // Masquer le message après 3 secondes
+                    setTimeout(() => {
+                        feedback.innerHTML = '';
+                    }, 3000);
                 })
                 .catch(error => {
-                    console.error('Add sport error:', error);
                     uiManager.hideLoading();
-                    const feedback = document.createElement('div');
-                    feedback.className = 'alert alert-danger mt-3';
-                    feedback.textContent = 'Erreur d\'ajout: ' + error.message;
-                    document.getElementById('sports-list').prepend(feedback);
-                    setTimeout(() => feedback.remove(), 3000);
+                    const feedback = document.getElementById('add-sport-feedback');
+                    feedback.innerHTML = `
+                        <div class="alert alert-danger">
+                            Erreur: ${error.message}
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        feedback.innerHTML = '';
+                    }, 3000);
                 });
         });
+    } else {
+        console.warn("Le bouton submit-sport-details n'a pas été trouvé dans le DOM");
     }
 
-    // Initialisation
+    // Exposer uiManager globalement pour pouvoir l'utiliser depuis d'autres scripts
     window.uiManager = uiManager;
+
+    // Initialiser l'application
     uiManager.init();
 });
