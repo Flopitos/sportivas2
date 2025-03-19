@@ -26,8 +26,8 @@ public class Sport {
     
     private String description;
     
-    @ManyToMany(mappedBy = "sports")
-    private Set<User> users = new HashSet<>();
+    @OneToMany(mappedBy = "sport")
+    private Set<UserSport> userSports = new HashSet<>();
     
     @OneToMany(mappedBy = "sport")
     private Set<SportSession> sessions = new HashSet<>();

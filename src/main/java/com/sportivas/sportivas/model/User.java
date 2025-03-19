@@ -39,11 +39,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DailyFeeling> feelings = new HashSet<>();
     
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_sports",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "sport_id"))
-    private Set<Sport> sports = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserSport> userSports = new HashSet<>();
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Injury> injuries = new HashSet<>();

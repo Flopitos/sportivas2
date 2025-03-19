@@ -14,6 +14,7 @@ import com.sportivas.sportivas.exception.ResourceNotFoundException;
 import com.sportivas.sportivas.model.Sport;
 import com.sportivas.sportivas.model.SportSession;
 import com.sportivas.sportivas.model.User;
+import com.sportivas.sportivas.model.UserSport;
 import com.sportivas.sportivas.repository.SportRepository;
 import com.sportivas.sportivas.repository.SportSessionRepository;
 import com.sportivas.sportivas.service.SportSessionService;
@@ -139,10 +140,14 @@ public class SportSessionServiceImpl implements SportSessionService {
     @Override
     public String getSportSuggestion() {
         User currentUser = userService.getCurrentUser();
-        List<Sport> userSports = new ArrayList<>(currentUser.getSports());
+        
+        // Récupérer les sports depuis les UserSport
+        List<Sport> userSports = currentUser.getUserSports().stream()
+                .map(UserSport::getSport)
+                .collect(Collectors.toList());
         
         if (userSports.isEmpty()) {
-            return "Please add some sports to your profile to get suggestions.";
+            return "Veuillez ajouter des sports à votre profil pour obtenir des suggestions.";
         }
         
         // Simple MVP suggestion - just randomly pick one of user's sports
