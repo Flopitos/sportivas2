@@ -9,6 +9,10 @@ public interface SportService {
     List<SportDto> getAllSports();
     SportDto getSportById(Long id);
     List<UserSportDto> getUserSports();
+
+    // Ajouter cette méthode à la classe SportServiceImpl
+    List<UserSportDto> getSportsByUserId(Long userId);
+
     UserSportDto addSportToUser(Long sportId, String frequency, String level);
     void removeSportFromUser(Long userSportId);
 }

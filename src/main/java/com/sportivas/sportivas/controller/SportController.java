@@ -96,4 +96,10 @@ public class SportController {
         sportService.removeSportFromUser(userSportId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @Operation(summary = "Get user's sports by userId", description = "Returns all sports for a specific user ID")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<UserSportDto>> getUserSportsByUserId(@PathVariable Long userId) {
+        return new ResponseEntity<>(sportService.getSportsByUserId(userId), HttpStatus.OK);
+    }
 }

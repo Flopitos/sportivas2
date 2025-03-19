@@ -50,6 +50,19 @@ public class SportServiceImpl implements SportService {
                 .collect(Collectors.toList());
     }
 
+    // Ajouter cette méthode à la classe SportServiceImpl
+    @Override
+    public List<UserSportDto> getSportsByUserId(Long userId) {
+        // Récupérer l'utilisateur par son ID
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        // Récupérer les sports de cet utilisateur
+        return userSportRepository.findByUser(user).stream()
+                .map(this::mapToUserSportDto)
+                .collect(Collectors.toList());
+    }
+
     @Override
     public UserSportDto addSportToUser(Long sportId, String frequency, String level) {
         try {
