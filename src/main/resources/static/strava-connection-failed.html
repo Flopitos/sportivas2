@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Échec de connexion Strava - Sportivas</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Roboto', sans-serif;
+    }
+    .error-container {
+      max-width: 600px;
+      margin: 100px auto;
+      text-align: center;
+      padding: 40px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .strava-icon {
+      color: #6c757d;
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+    .error-icon {
+      color: #dc3545;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="error-container">
+    <div class="mb-4">
+      <i class="fab fa-strava strava-icon"></i>
+      <i class="fas fa-times-circle error-icon"></i>
+    </div>
+
+    <h2 class="mb-4">Échec de la connexion Strava</h2>
+
+    <div class="alert alert-danger" id="error-message">
+      Nous n'avons pas pu connecter votre compte Strava.
+    </div>
+
+    <p class="mb-4">Veuillez réessayer ou contacter notre support si le problème persiste.</p>
+
+    <div class="mt-4">
+      <a href="/api/strava/auth/authorize" class="btn btn-danger">
+        <i class="fab fa-strava"></i> Réessayer
+      </a>
+      <a href="/performances-section" class="btn btn-outline-secondary ms-2">
+        Retour au tableau de bord
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Récupérer la raison de l'échec depuis l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const reason = urlParams.get('reason');
+
+    const errorMessageElement = document.getElementById('error-message');
+
+    // Afficher un message d'erreur spécifique en fonction de la raison
+    if (reason === 'user_denied') {
+      errorMessageElement.textContent = 'Vous avez refusé laccès à Strava.';
+    } else if (reason === 'no_user') {
+      errorMessageElement.textContent = 'Session utilisateur non trouvée. Veuillez vous reconnecter.';
+    } else if (reason === 'exchange_error') {
+      errorMessageElement.textContent = 'Erreur technique lors de lutorisation.';
+    }
+  });
+</script>
+</body>
+</html>

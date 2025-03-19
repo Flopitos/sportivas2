@@ -282,6 +282,35 @@
 
         <!-- Performances -->
         <section id="performances-section" class="mb-5 hidden">
+            <h2 class="mb-4">Suivi de Performance</h2>
+
+            <!-- Section Strava -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fab fa-strava text-danger"></i> Connexion Strava
+                        </h5>
+                        <span id="strava-connection-status" class="badge bg-secondary">Vérification...</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>Connectez votre compte Strava pour importer automatiquement vos activités sportives.</p>
+                    <div class="d-flex gap-2">
+                        <button id="strava-connect-btn" class="btn btn-danger">
+                            <i class="fab fa-strava"></i> Se connecter à Strava
+                        </button>
+                        <button id="strava-disconnect-btn" class="btn btn-outline-danger" style="display: none;">
+                            <i class="fas fa-unlink"></i> Déconnecter
+                        </button>
+                        <button id="strava-sync-btn" class="btn btn-primary" style="display: none;">
+                            <i class="fas fa-sync"></i> Synchroniser maintenant
+                        </button>
+                    </div>
+                    <div id="strava-sync-status" class="mt-2 small text-muted"></div>
+                </div>
+            </div>
+
             <div id="content">
                 <div class="container my-4">
                     <h2 class="text-center mb-4">Chargement du suivi de performances...</h2>
@@ -458,6 +487,7 @@
 <!-- Custom JS -->
 <script src="/js/performance.js"></script>
 <script src="/js/app.js"></script>
+<script src="/js/strava-integration.js"></script>
 <script src="/js/quiz-module.js"></script>
 <!-- Script pour s'assurer que le quiz s'affiche correctement -->
 <script>
