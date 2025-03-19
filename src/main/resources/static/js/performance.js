@@ -5,7 +5,8 @@ const performanceModule = {
 
     async fetchActivities() {
         try {
-            const response = await fetch(`${API_BASE_URL}/activities`, {
+            // Utiliser l'API simplifiée
+            const response = await fetch('/api/simple/activities', {
                 method: 'GET',
                 headers: userService.getHeaders()
             });
@@ -14,8 +15,14 @@ const performanceModule = {
                 throw new Error('Failed to fetch activities');
             }
 
-            this.activities = await response.json();
-            return this.activities;
+            const data = await response.json();
+            
+            if (data.success && data.activities) {
+                this.activities = data.activities;
+                return this.activities;
+            } else {
+                throw new Error(data.message || 'Failed to get activities');
+            }
         } catch (error) {
             console.error('Fetch activities error:', error);
             return [];
@@ -24,7 +31,8 @@ const performanceModule = {
 
     async fetchSummary() {
         try {
-            const response = await fetch(`${API_BASE_URL}/activities/summary`, {
+            // Utiliser l'API simplifiée
+            const response = await fetch('/api/simple/activities-summary', {
                 method: 'GET',
                 headers: userService.getHeaders()
             });
@@ -33,8 +41,14 @@ const performanceModule = {
                 throw new Error('Failed to fetch summary');
             }
 
-            this.summary = await response.json();
-            return this.summary;
+            const data = await response.json();
+            
+            if (data.success && data.summary) {
+                this.summary = data.summary;
+                return this.summary;
+            } else {
+                throw new Error(data.message || 'Failed to get activities summary');
+            }
         } catch (error) {
             console.error('Fetch summary error:', error);
             return null;
@@ -42,26 +56,55 @@ const performanceModule = {
     },
 
     renderActivityCard(activity) {
-        // Formatage de la date et de l'heure
-        const activityDate = new Date(activity.startDate).toLocaleDateString();
-        const activityTime = new Date(activity.startDate).toLocaleTimeString();
+        console.log("Rendering activity:", activity);
+        
+        // Formatage de la date et de l'heure avec vérification
+        let activityDate = "Date inconnue";
+        let activityTime = "";
+        
+        if (activity.startDate) {
+            try {
+                // Formater la date SQL (YYYY-MM-DD HH:MM:SS)
+                const date = new Date(activity.startDate.replace(' ', 'T'));
+                if (!isNaN(date.getTime())) {
+                    activityDate = date.toLocaleDateString();
+                    activityTime = date.toLocaleTimeString();
+                }
+            } catch (e) {
+                console.warn("Error parsing date:", e);
+            }
+        }
 
-        // Conversion de la distance de mètres en kilomètres
-        const distanceKm = (activity.distance / 1000).toFixed(2);
+        // Conversion de la distance de mètres en kilomètres avec vérification
+        const distance = parseFloat(activity.distance) || 0;
+        const distanceKm = (distance / 1000).toFixed(2);
 
-        // Calcul de la durée en minutes
-        const durationMinutes = Math.floor(activity.movingTime / 60);
+        // Calcul de la durée en minutes avec vérification
+        const movingTime = parseInt(activity.movingTime) || 0;
+        const durationMinutes = Math.floor(movingTime / 60);
+
+        // Vérification des vitesses
+        const avgSpeed = parseFloat(activity.averageSpeed) || 0;
+        const maxSpeed = parseFloat(activity.maxSpeed) || 0;
+        
+        // Calculer les vitesses en km/h
+        const avgSpeedKmh = (avgSpeed * 3.6).toFixed(2);
+        const maxSpeedKmh = (maxSpeed * 3.6).toFixed(2);
+        
+        // Vérification de la fréquence cardiaque
+        const hasHeartrate = activity.hasHeartrate === true;
+        const avgHeartrate = parseFloat(activity.averageHeartrate) || 0;
 
         return `
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">${activity.name}</h5>
-                    <span class="badge bg-primary">${activity.type}</span>
+                    <h5 class="mb-0">${activity.name || 'Activité sans nom'}</h5>
+                    <span class="badge bg-primary">${activity.type || 'Type inconnu'}</span>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Date:</strong> ${activityDate} à ${activityTime}</p>
+                            <p><strong>Date:</strong> ${activityDate}${activityTime ? ` à ${activityTime}` : ''}</p>
                             <p><strong>Durée:</strong> ${durationMinutes} min</p>
                             <p><strong>Distance:</strong> ${distanceKm} km</p>
                         </div>
@@ -69,32 +112,32 @@ const performanceModule = {
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <strong>Vitesse moyenne:</strong> 
-                                    <span class="text-primary fw-bold">${(activity.averageSpeed * 3.6).toFixed(2)} km/h</span>
+                                    <span class="text-primary fw-bold">${avgSpeedKmh} km/h</span>
                                 </div>
                                 <div class="progress">
                                     <div class="progress-bar bg-primary" role="progressbar" 
-                                        style="width: ${Math.min(100, (activity.averageSpeed * 3.6) * 5)}%"></div>
+                                        style="width: ${Math.min(100, avgSpeed * 3.6 * 5)}%"></div>
                                 </div>
                             </div>
                             <div>
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <strong>Vitesse maximale:</strong> 
-                                    <span class="text-success fw-bold">${(activity.maxSpeed * 3.6).toFixed(2)} km/h</span>
+                                    <span class="text-success fw-bold">${maxSpeedKmh} km/h</span>
                                 </div>
                                 <div class="progress">
                                     <div class="progress-bar bg-success" role="progressbar" 
-                                        style="width: ${Math.min(100, (activity.maxSpeed * 3.6) * 3)}%"></div>
+                                        style="width: ${Math.min(100, maxSpeed * 3.6 * 3)}%"></div>
                                 </div>
                             </div>
-                            ${activity.hasHeartrate ? `
+                            ${hasHeartrate ? `
                             <div class="mt-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <strong>Fréquence cardiaque moy.:</strong> 
-                                    <span class="text-danger fw-bold">${activity.averageHeartrate?.toFixed(0) || 'N/A'} bpm</span>
+                                    <span class="text-danger fw-bold">${avgHeartrate.toFixed(0)} bpm</span>
                                 </div>
                                 <div class="progress">
                                     <div class="progress-bar bg-danger" role="progressbar" 
-                                        style="width: ${Math.min(100, (activity.averageHeartrate || 0) / 2)}%"></div>
+                                        style="width: ${Math.min(100, avgHeartrate / 2)}%"></div>
                                 </div>
                             </div>` : ''}
                         </div>
@@ -102,6 +145,31 @@ const performanceModule = {
                 </div>
             </div>
         `;
+    },
+
+    async fetchTotalPoints() {
+        try {
+            // Utiliser l'API simplifiée
+            const response = await fetch('/api/simple/performance-points', {
+                method: 'GET',
+                headers: userService.getHeaders()
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch total points');
+            }
+
+            const data = await response.json();
+            
+            if (data.success) {
+                return data.totalPoints;
+            } else {
+                throw new Error(data.message || 'Failed to get total points');
+            }
+        } catch (error) {
+            console.error('Fetch total points error:', error);
+            return 0;
+        }
     },
 
     renderSummaryDashboard(summary) {
@@ -119,6 +187,10 @@ const performanceModule = {
             });
         }
 
+        // Calculer les points basés sur la distance (16 points/km)
+        const distanceInKm = summary.totalDistance / 1000;
+        const pointsFromDistance = Math.round(distanceInKm * 16);
+
         return `
             <div class="row mb-4">
                 <div class="col-md-6 mb-3">
@@ -130,7 +202,7 @@ const performanceModule = {
                             <div class="row text-center">
                                 <div class="col-6 mb-3">
                                     <div class="border rounded p-3">
-                                        <h3 class="text-primary">${(summary.totalDistance / 1000).toFixed(1)} km</h3>
+                                        <h3 class="text-primary">${distanceInKm.toFixed(1)} km</h3>
                                         <p class="mb-0 text-muted">Distance totale</p>
                                     </div>
                                 </div>
@@ -148,8 +220,8 @@ const performanceModule = {
                                 </div>
                                 <div class="col-6">
                                     <div class="border rounded p-3">
-                                        <h3 class="text-danger">${summary.totalElevation?.toFixed(0) || 0} m</h3>
-                                        <p class="mb-0 text-muted">Dénivelé total</p>
+                                        <h3 class="text-warning">${pointsFromDistance}</h3>
+                                        <p class="mb-0 text-muted">Points (16pts/km)</p>
                                     </div>
                                 </div>
                             </div>
@@ -177,6 +249,25 @@ const performanceModule = {
         contentArea.innerHTML = `
             <div class="container my-4">
                 <h2 class="text-center mb-4">Suivi de Performance</h2>
+                <div class="card mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Points de Performance</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div class="display-4 fw-bold text-primary" id="total-points-display">...</div>
+                                <p class="lead">points totaux</p>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> 1 kilomètre parcouru = 16 points
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div id="summary-dashboard"></div>
                 <div id="activities-container">
                     <div class="d-flex justify-content-center">
@@ -189,8 +280,21 @@ const performanceModule = {
         `;
 
         try {
-            // Charger les données
-            await Promise.all([this.fetchActivities(), this.fetchSummary()]);
+            // Charger les données en parallèle
+            const [activitiesPromise, summaryPromise, pointsPromise] = [
+                this.fetchActivities(),
+                this.fetchSummary(),
+                this.fetchTotalPoints()
+            ];
+            
+            // Afficher les points totaux dès qu'ils sont disponibles
+            const totalPoints = await pointsPromise;
+            document.getElementById('total-points-display').textContent = totalPoints;
+            document.getElementById('performance-points').textContent = totalPoints;
+            
+            // Attendre que les autres données soient chargées
+            this.activities = await activitiesPromise;
+            this.summary = await summaryPromise;
 
             // Préparer les données du résumé si elles n'existent pas
             if (!this.summary) {
@@ -212,7 +316,18 @@ const performanceModule = {
                 );
 
                 sortedActivities.forEach(activity => {
-                    activitiesHtml += this.renderActivityCard(activity);
+                    // Calculer les points pour cette activité (16 points par km)
+                    const distanceKm = activity.distance / 1000;
+                    const pointsEarned = Math.round(distanceKm * 16);
+                    
+                    // Ajouter les points gagnés à la carte d'activité
+                    const activityCard = this.renderActivityCard(activity);
+                    const cardWithPoints = activityCard.replace(
+                        '<div class="card-header d-flex justify-content-between align-items-center">',
+                        `<div class="card-header d-flex justify-content-between align-items-center">
+                         <div class="badge bg-warning text-dark me-2">+${pointsEarned} pts</div>`
+                    );
+                    activitiesHtml += cardWithPoints;
                 });
                 activitiesContainer.innerHTML = activitiesHtml;
             } else {

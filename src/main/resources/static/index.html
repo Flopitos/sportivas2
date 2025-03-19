@@ -64,6 +64,36 @@
         #close-quiz-btn:hover {
             transform: scale(1.2);
         }
+        
+        /* Styles pour la boutique */
+        .hover-card {
+            transition: all 0.3s ease;
+            border: 1px solid #ddd;
+        }
+        
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .special-offer {
+            border: 2px solid gold;
+            position: relative;
+        }
+        
+        .special-offer::after {
+            content: "EXCLUSIF";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: gold;
+            color: #000;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
 
         /* Responsivité pour les petits écrans */
         @media (max-width: 768px) {
@@ -138,6 +168,9 @@
                     </li>
                 </ul>
                 <div class="d-flex align-items-center">
+                        <a href="#shop-section" class="nav-link me-3">
+                            <i class="fas fa-store"></i> Boutique
+                        </a>
                         <span class="points-badge me-3">
                             <i class="fas fa-medal"></i> <span id="performance-points">0</span> pts
                         </span>
@@ -342,6 +375,169 @@
                 <div class="card-body">
                     <div id="sessions-list">
                         <p>Chargement de vos séances...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Boutique de points -->
+        <section id="shop-section" class="mb-5 hidden">
+            <h2 class="mb-4">Boutique de récompenses</h2>
+            
+            <div class="alert alert-info mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle me-3 fs-3"></i>
+                    <div>
+                        <h5 class="mb-1">Vos points sportifs</h5>
+                        <p class="mb-0">Vous avez actuellement <strong><span id="shop-points-display">0</span> points</strong> que vous pouvez échanger contre des avantages sur votre contrat d'assurance.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <!-- Offre 1 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Réduction de 5%</h5>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-3 text-center">
+                                <span class="display-4 text-primary">5%</span>
+                                <p>de réduction sur 3 mois</p>
+                            </div>
+                            <p>Bénéficiez d'une réduction directe de 5% sur votre prime d'assurance pendant les 3 prochains mois.</p>
+                            <div class="mt-auto text-center">
+                                <p class="mb-2"><strong>Coût : 100 points</strong></p>
+                                <button class="btn btn-primary redeem-btn" data-points="100" data-reward="5% de réduction sur 3 mois">
+                                    Échanger
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Offre 2 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">Réduction de 10%</h5>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-3 text-center">
+                                <span class="display-4 text-success">10%</span>
+                                <p>de réduction sur 1 mois</p>
+                            </div>
+                            <p>Obtenez une importante réduction de 10% sur votre prime d'assurance pour le mois prochain.</p>
+                            <div class="mt-auto text-center">
+                                <p class="mb-2"><strong>Coût : 150 points</strong></p>
+                                <button class="btn btn-success redeem-btn" data-points="150" data-reward="10% de réduction sur 1 mois">
+                                    Échanger
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Offre 3 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">Couverture supplémentaire</h5>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-3 text-center">
+                                <span class="display-4 text-info"><i class="fas fa-shield-alt"></i></span>
+                                <p>Extension de garantie</p>
+                            </div>
+                            <p>Extension de garantie optionnelle pendant 2 mois sans frais supplémentaires.</p>
+                            <div class="mt-auto text-center">
+                                <p class="mb-2"><strong>Coût : 200 points</strong></p>
+                                <button class="btn btn-info redeem-btn" data-points="200" data-reward="Extension de garantie pour 2 mois">
+                                    Échanger
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Offre 4 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">Franchise réduite</h5>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-3 text-center">
+                                <span class="display-4 text-warning">-25%</span>
+                                <p>sur votre franchise</p>
+                            </div>
+                            <p>Réduction de 25% sur votre franchise en cas de sinistre pendant les 6 prochains mois.</p>
+                            <div class="mt-auto text-center">
+                                <p class="mb-2"><strong>Coût : 250 points</strong></p>
+                                <button class="btn btn-warning redeem-btn" data-points="250" data-reward="Franchise réduite de 25% pendant 6 mois">
+                                    Échanger
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Offre 5 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-card">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0">Offre Premium</h5>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-3 text-center">
+                                <span class="display-4 text-danger"><i class="fas fa-crown"></i></span>
+                                <p>Pack avantages complet</p>
+                            </div>
+                            <p>Accès aux services premium pendant 1 mois: assistance 24/7, garanties étendues et remboursements accélérés.</p>
+                            <div class="mt-auto text-center">
+                                <p class="mb-2"><strong>Coût : 500 points</strong></p>
+                                <button class="btn btn-danger redeem-btn" data-points="500" data-reward="Pack Premium pour 1 mois">
+                                    Échanger
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Offre 6 -->
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-card special-offer">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">Offre Sportif Elite</h5>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-3 text-center">
+                                <span class="display-4 text-dark"><i class="fas fa-trophy"></i></span>
+                                <p>Récompense exclusive</p>
+                            </div>
+                            <p>15% de réduction sur votre contrat annuel et accès VIP à des événements sportifs sponsorisés.</p>
+                            <div class="mt-auto text-center">
+                                <p class="mb-2"><strong>Coût : 1000 points</strong></p>
+                                <button class="btn btn-dark redeem-btn" data-points="1000" data-reward="Offre Sportif Elite (15% de réduction annuelle + accès VIP)">
+                                    Échanger
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historique des récompenses -->
+            <div class="card shadow mt-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Historique des récompenses</h5>
+                </div>
+                <div class="card-body">
+                    <div id="rewards-history">
+                        <p class="text-muted">Vous n'avez pas encore échangé de points.</p>
                     </div>
                 </div>
             </div>

@@ -270,14 +270,32 @@ const sportService = {
 const injuryService = {
     async addInjury(injury) {
         try {
-            const response = await fetch(INJURIES_URL, {
-                method: 'POST',
-                headers: userService.getHeaders(),
-                body: JSON.stringify(injury)
+            console.log('Sending injury data:', JSON.stringify(injury));
+            
+            // Utiliser l'API simplifiée pour éviter les problèmes de conversion de date
+            const url = `/api/simple/add-injury?bodyPart=${encodeURIComponent(injury.bodyPart)}&painType=${encodeURIComponent(injury.painType)}&injuryDate=${encodeURIComponent(injury.injuryDate)}`;
+            
+            // Ajouter les paramètres optionnels s'ils existent
+            const fullUrl = injury.recoveryDate 
+                ? `${url}&recoveryDate=${encodeURIComponent(injury.recoveryDate)}` 
+                : url;
+            
+            const finalUrl = injury.description 
+                ? `${fullUrl}&description=${encodeURIComponent(injury.description)}` 
+                : fullUrl;
+            
+            console.log('API URL:', finalUrl);
+            
+            const response = await fetch(finalUrl, {
+                method: 'GET',  // Utiliser GET pour l'API simplifiée
+                headers: userService.getHeaders()
             });
 
             if (!response.ok) {
-                throw new Error('Failed to add injury');
+                console.error('Server responded with status:', response.status);
+                const errorText = await response.text();
+                console.error('Error response:', errorText);
+                throw new Error(`Failed to add injury: ${response.status}`);
             }
 
             return await response.json();
@@ -588,6 +606,92 @@ const uiManager = {
                     });
             }
 
+            // Formulaire d'ajout de blessure
+            if (e.target.id === 'add-injury-form') {
+                e.preventDefault();
+                const bodyPart = document.getElementById('body-part').value;
+                const painType = document.getElementById('pain-type').value;
+                const injuryDate = document.getElementById('injury-date').value;
+                const recoveryDate = document.getElementById('recovery-date').value;
+                const description = document.getElementById('injury-description').value;
+
+                if (!bodyPart || !painType || !injuryDate) {
+                    // Feedback pour les champs obligatoires
+                    const feedbackEl = document.createElement('div');
+                    feedbackEl.className = 'alert alert-danger mt-3';
+                    feedbackEl.innerHTML = 'Veuillez remplir tous les champs obligatoires.';
+                    e.target.appendChild(feedbackEl);
+                    setTimeout(() => {
+                        feedbackEl.remove();
+                    }, 3000);
+                    return;
+                }
+
+                // Convertir les dates au format ISO pour que Spring puisse les convertir en LocalDate
+                const formattedInjuryDate = injuryDate ? new Date(injuryDate).toISOString().split('T')[0] : null;
+                const formattedRecoveryDate = recoveryDate ? new Date(recoveryDate).toISOString().split('T')[0] : null;
+
+                const injury = {
+                    bodyPart,
+                    painType,
+                    injuryDate: formattedInjuryDate,
+                    recoveryDate: formattedRecoveryDate,
+                    description
+                };
+
+                this.showLoading();
+                injuryService.addInjury(injury)
+                    .then(result => {
+                        console.log("Injury added successfully:", result);
+                        this.hideLoading();
+
+                        // Réinitialiser le formulaire
+                        document.getElementById('add-injury-form').reset();
+
+                        // Feedback de succès
+                        const feedbackEl = document.createElement('div');
+                        feedbackEl.className = 'alert alert-success mt-3';
+                        feedbackEl.innerHTML = 'Blessure ajoutée avec succès !';
+                        document.getElementById('add-injury-form').appendChild(feedbackEl);
+                        setTimeout(() => {
+                            feedbackEl.remove();
+                        }, 3000);
+
+                        // Rafraîchir la liste des blessures
+                        this.loadInjuriesTab();
+                    })
+                    .catch(async error => {
+                        console.error("Failed to add injury:", error);
+                        this.hideLoading();
+
+                        // Tenter d'obtenir plus de détails sur l'erreur
+                        let errorMessage = 'Erreur lors de l\'ajout de la blessure';
+                        
+                        try {
+                            // Si nous avons une réponse d'erreur détaillée
+                            if (error.response) {
+                                const errorData = await error.response.json();
+                                if (errorData.message) {
+                                    errorMessage += ': ' + errorData.message;
+                                }
+                            } else if (error.message) {
+                                errorMessage += ': ' + error.message;
+                            }
+                        } catch (e) {
+                            console.error("Error parsing error response:", e);
+                        }
+
+                        // Feedback d'erreur
+                        const feedbackEl = document.createElement('div');
+                        feedbackEl.className = 'alert alert-danger mt-3';
+                        feedbackEl.innerHTML = errorMessage;
+                        document.getElementById('add-injury-form').appendChild(feedbackEl);
+                        setTimeout(() => {
+                            feedbackEl.remove();
+                        }, 5000);
+                    });
+            }
+
             // Formulaire d'ajout de sport
             if (e.target.id === 'add-sport-form') {
                 e.preventDefault();
@@ -684,6 +788,10 @@ const uiManager = {
                         if (window.performanceModule && typeof window.performanceModule.renderPerformanceTab === 'function') {
                             window.performanceModule.renderPerformanceTab();
                         }
+                    } else if (targetId === '#injuries-section') {
+                        this.loadInjuriesTab();
+                    } else if (targetId === '#shop-section') {
+                        this.loadShopTab();
                     }
                 }
             }
@@ -767,10 +875,17 @@ const uiManager = {
     loadDashboardData() {
         this.showLoading();
 
-        // Charger les points de performance
-        performanceService.getTotalPoints()
-            .then(points => {
-                document.getElementById('performance-points').textContent = points;
+        // Charger les points de performance avec l'API simplifiée
+        fetch('/api/simple/performance-points')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const points = data.totalPoints;
+                    document.getElementById('performance-points').textContent = points;
+                    console.log('Points chargés:', points);
+                } else {
+                    console.error('Error loading points:', data.message);
+                }
             })
             .catch(error => {
                 console.error('Get total points error:', error);
@@ -835,8 +950,323 @@ const uiManager = {
         // Charger les sports pour le formulaire et la liste des sports utilisateur
         // dans l'onglet sports
         this.loadSportsTab();
+        
+        // Charger les blessures pour l'onglet blessures
+        this.loadInjuriesTab();
 
         this.hideLoading();
+    },
+    
+    loadInjuriesTab() {
+        // Charger les blessures de l'utilisateur avec l'API simplifiée
+        fetch('/api/simple/list-injuries')
+            .then(response => response.json())
+            .then(data => {
+                console.log('List injuries response:', data);
+                
+                const injuriesList = document.getElementById('injuries-list');
+                injuriesList.innerHTML = '';
+
+                if (!data.success || !data.injuries || data.injuries.length === 0) {
+                    injuriesList.innerHTML = '<p>Vous n\'avez pas encore enregistré de blessures.</p>';
+                } else {
+                    const injuries = data.injuries;
+                    
+                    const table = document.createElement('table');
+                    table.className = 'table table-striped';
+
+                    // En-tête du tableau
+                    const thead = document.createElement('thead');
+                    thead.innerHTML = `
+                        <tr>
+                            <th>Zone du corps</th>
+                            <th>Type de douleur</th>
+                            <th>Date de blessure</th>
+                            <th>Date de guérison</th>
+                            <th>Actions</th>
+                        </tr>
+                    `;
+                    table.appendChild(thead);
+
+                    // Corps du tableau
+                    const tbody = document.createElement('tbody');
+                    injuries.forEach(injury => {
+                        const tr = document.createElement('tr');
+                        const injuryDate = new Date(injury.injury_date).toLocaleDateString();
+                        const recoveryDate = injury.recovery_date ? new Date(injury.recovery_date).toLocaleDateString() : 'Non guéri';
+                        
+                        tr.innerHTML = `
+                            <td>${injury.body_part}</td>
+                            <td>${injury.pain_type}</td>
+                            <td>${injuryDate}</td>
+                            <td>${recoveryDate}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-danger delete-injury-btn" data-id="${injury.id}" title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    table.appendChild(tbody);
+                    injuriesList.appendChild(table);
+
+                    // Ajouter des écouteurs d'événements pour les boutons d'action
+                    table.addEventListener('click', e => {
+                        let target = e.target;
+                        
+                        // Remonter jusqu'au bouton si on a cliqué sur l'icône
+                        while (target && target !== table) {
+                            if (target.classList.contains('delete-injury-btn')) {
+                                e.preventDefault();
+                                const injuryId = target.dataset.id;
+                                
+                                if (confirm('Êtes-vous sûr de vouloir supprimer cette blessure ?')) {
+                                    this.showLoading();
+                                    
+                                    // Utiliser l'API simplifiée pour supprimer
+                                    fetch(`/api/simple/remove-injury/${injuryId}`)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            this.hideLoading();
+                                            
+                                            if (data.success) {
+                                                this.loadInjuriesTab(); // Recharger la liste
+                                                
+                                                // Feedback de succès
+                                                const feedbackEl = document.createElement('div');
+                                                feedbackEl.className = 'alert alert-success';
+                                                feedbackEl.innerHTML = 'Blessure supprimée avec succès !';
+                                                injuriesList.prepend(feedbackEl);
+                                                setTimeout(() => feedbackEl.remove(), 3000);
+                                            } else {
+                                                throw new Error(data.message || 'Erreur lors de la suppression');
+                                            }
+                                        })
+                                        .catch(error => {
+                                            this.hideLoading();
+                                            console.error('Delete injury error:', error);
+                                            
+                                            // Feedback d'erreur
+                                            const feedbackEl = document.createElement('div');
+                                            feedbackEl.className = 'alert alert-danger';
+                                            feedbackEl.innerHTML = 'Erreur lors de la suppression: ' + error.message;
+                                            injuriesList.prepend(feedbackEl);
+                                            setTimeout(() => feedbackEl.remove(), 3000);
+                                        });
+                                }
+                                return;
+                            }
+                            target = target.parentElement;
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Get user injuries error:', error);
+                const injuriesList = document.getElementById('injuries-list');
+                injuriesList.innerHTML = '<div class="alert alert-danger">Erreur lors du chargement des blessures</div>';
+            });
+    },
+    
+    loadShopTab() {
+        // Récupérer les points actuels
+        fetch('/api/simple/performance-points')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const points = data.totalPoints;
+                    
+                    // Mettre à jour l'affichage des points dans l'onglet boutique
+                    document.getElementById('shop-points-display').textContent = points;
+                    
+                    // Parcourir tous les boutons d'échange et vérifier si l'utilisateur a assez de points
+                    document.querySelectorAll('.redeem-btn').forEach(button => {
+                        const requiredPoints = parseInt(button.dataset.points);
+                        
+                        if (points < requiredPoints) {
+                            button.disabled = true;
+                            button.classList.add('disabled');
+                            button.textContent = 'Points insuffisants';
+                        } else {
+                            button.disabled = false;
+                            button.classList.remove('disabled');
+                            button.textContent = 'Échanger';
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching points for shop:', error);
+            });
+            
+        // Charger l'historique des récompenses depuis le localStorage
+        this.loadRewardsHistory();
+        
+        // Supprimer d'abord les écouteurs d'événements existants
+        // pour éviter les doublons
+        const shopSection = document.getElementById('shop-section');
+        const newShopSection = shopSection.cloneNode(true);
+        shopSection.parentNode.replaceChild(newShopSection, shopSection);
+        
+        // Ajouter les nouveaux écouteurs d'événements pour les boutons d'échange
+        document.querySelectorAll('.redeem-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const requiredPoints = parseInt(e.target.dataset.points);
+                const rewardName = e.target.dataset.reward;
+                
+                // Récupérer les points actuels
+                fetch('/api/simple/performance-points')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const currentPoints = data.totalPoints;
+                            
+                            if (currentPoints >= requiredPoints) {
+                                // Simuler un échange de points (normalement cela serait une API)
+                                this.redeemPoints(requiredPoints, rewardName);
+                            } else {
+                                alert('Vous n\'avez pas assez de points pour cette récompense.');
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking points for redemption:', error);
+                        alert('Une erreur est survenue lors de la vérification de vos points.');
+                    });
+            });
+        });
+    },
+    
+    redeemPoints(points, rewardName) {
+        // Dans un environnement réel, cela serait un appel API pour diminuer les points
+        // Pour cette démo, on simule le processus
+        this.showLoading();
+        
+        // Simuler un délai de traitement
+        setTimeout(() => {
+            this.hideLoading();
+            
+            // Récupérer l'historique des récompenses
+            let rewardsHistory = JSON.parse(localStorage.getItem('rewardsHistory')) || [];
+            
+            // Ajouter la nouvelle récompense
+            const newReward = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                points: points,
+                reward: rewardName
+            };
+            
+            rewardsHistory.push(newReward);
+            
+            // Enregistrer l'historique mis à jour
+            localStorage.setItem('rewardsHistory', JSON.stringify(rewardsHistory));
+            
+            // Afficher une confirmation
+            const shopSection = document.getElementById('shop-section');
+            const confirmationEl = document.createElement('div');
+            confirmationEl.className = 'alert alert-success';
+            confirmationEl.innerHTML = `
+                <h4 class="alert-heading">Félicitations !</h4>
+                <p>Vous avez échangé <strong>${points} points</strong> contre <strong>${rewardName}</strong>.</p>
+                <hr>
+                <p class="mb-0">Votre réduction sera appliquée automatiquement sur votre prochain relevé.</p>
+            `;
+            shopSection.prepend(confirmationEl);
+            
+            // Faire défiler vers le haut pour voir la confirmation
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Disparaître après 5 secondes
+            setTimeout(() => {
+                confirmationEl.remove();
+            }, 5000);
+            
+            // Mettre à jour uniquement l'historique des récompenses sans recharger tout l'onglet
+            // ce qui ajouterait de nouveaux écouteurs d'événements à chaque fois
+            this.loadRewardsHistory();
+            
+            // Mettre à jour les points dans l'en-tête
+            fetch('/api/simple/performance-points')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Soustraire les points échangés (simulé)
+                        const remaining = data.totalPoints - points;
+                        document.getElementById('performance-points').textContent = remaining > 0 ? remaining : 0;
+                        document.getElementById('shop-points-display').textContent = remaining > 0 ? remaining : 0;
+                        
+                        // Mettre à jour l'état des boutons en fonction des points restants
+                        document.querySelectorAll('.redeem-btn').forEach(button => {
+                            const requiredPoints = parseInt(button.dataset.points);
+                            
+                            if (remaining < requiredPoints) {
+                                button.disabled = true;
+                                button.classList.add('disabled');
+                                button.textContent = 'Points insuffisants';
+                            } else {
+                                button.disabled = false;
+                                button.classList.remove('disabled');
+                                button.textContent = 'Échanger';
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating points display:', error);
+                });
+        }, 1000);
+    },
+    
+    loadRewardsHistory() {
+        const rewardsHistoryElement = document.getElementById('rewards-history');
+        
+        // Récupérer l'historique des récompenses du localStorage
+        const rewardsHistory = JSON.parse(localStorage.getItem('rewardsHistory')) || [];
+        
+        if (rewardsHistory.length === 0) {
+            rewardsHistoryElement.innerHTML = '<p class="text-muted">Vous n\'avez pas encore échangé de points.</p>';
+            return;
+        }
+        
+        // Trier par date décroissante (plus récent en premier)
+        rewardsHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        // Créer un tableau pour afficher l'historique
+        const table = document.createElement('table');
+        table.className = 'table table-striped';
+        
+        // En-tête du tableau
+        const thead = document.createElement('thead');
+        thead.innerHTML = `
+            <tr>
+                <th>Date</th>
+                <th>Récompense</th>
+                <th>Points</th>
+            </tr>
+        `;
+        table.appendChild(thead);
+        
+        // Corps du tableau
+        const tbody = document.createElement('tbody');
+        
+        rewardsHistory.forEach(item => {
+            const date = new Date(item.date).toLocaleDateString();
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${date}</td>
+                <td>${item.reward}</td>
+                <td>-${item.points} pts</td>
+            `;
+            
+            tbody.appendChild(tr);
+        });
+        
+        table.appendChild(tbody);
+        rewardsHistoryElement.innerHTML = '';
+        rewardsHistoryElement.appendChild(table);
     },
 
     loadSportsTab() {

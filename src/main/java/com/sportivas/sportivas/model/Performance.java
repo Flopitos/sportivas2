@@ -40,7 +40,7 @@ public class Performance {
     @PrePersist
     @PreUpdate
     protected void calculatePoints() {
-        // Simple gamification logic for MVP
+        // Gamification logic: 1km = 16 points
         performancePoints = 0;
         
         if (steps != null) {
@@ -52,7 +52,8 @@ public class Performance {
         }
         
         if (distanceKm != null) {
-            performancePoints += distanceKm.intValue() * 10;
+            // Chaque kilomètre vaut 16 points
+            performancePoints += (int)(distanceKm * 16);
         }
     }
 }
