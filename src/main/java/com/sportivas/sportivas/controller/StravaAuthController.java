@@ -73,12 +73,16 @@ public class StravaAuthController {
         Long userId = (Long) session.getAttribute("strava_auth_user_id");
         if (userId == null) {
             logger.error("Aucun ID utilisateur trouvé dans la session pour le callback Strava");
-            return new RedirectView("/static/strava-connection-failed.html");
+//            return new RedirectView("/static/strava-connection-failed.html");
+            return new RedirectView("/strava-connection-failed.html");
+
         }
 
         if (error != null) {
             logger.warn("L'utilisateur {} a refusé l'autorisation Strava: {}", userId, error);
-            return new RedirectView("/static/strava-connection-failed.html");
+//            return new RedirectView("/static/strava-connection-failed.html");
+            return new RedirectView("/strava-connection-failed.html");
+
         }
 
         try {
@@ -96,10 +100,12 @@ public class StravaAuthController {
                     userId, activitiesCount);
 
             // Rediriger vers une page de succès
-            return new RedirectView("/static/strava-connected.html");
+//            return new RedirectView("/static/strava-connected.html");
+            return new RedirectView("/strava-connected.html");
         } catch (Exception e) {
             logger.error("Erreur lors de l'échange du code d'autorisation pour l'utilisateur {}", userId, e);
-            return new RedirectView("/static/strava-connection-failed.html");
+//            return new RedirectView("/static/strava-connection-failed.html");
+            return new RedirectView("/strava-connection-failed.html");
         }
     }
 
