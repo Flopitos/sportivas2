@@ -195,7 +195,10 @@
                             <h5 class="mb-0"><i class="fas fa-heart feature-icon"></i>Suggestion du jour</h5>
                         </div>
                         <div class="card-body">
-                            <p id="sport-suggestion" class="lead">Chargement de votre suggestion...</p>
+                            <p id="sport-suggestion" class="lead">Que diriez-vous d'une sortie vélo le <strong>22 mars 2025</strong> ? Les conditions météo seront parfaites pour une balade en extérieur !</p>
+                            <div class="text-center mt-3">
+                                <button class="btn btn-primary" onclick="alert('Séance ajoutée à votre planning !')">Ajouter à mon planning</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -222,7 +225,40 @@
                         </div>
                         <div class="card-body">
                             <div id="upcoming-sessions">
-                                <p>Chargement de vos séances...</p>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Sport</th>
+                                                <th>Horaires</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>20 mars 2025</strong></td>
+                                                <td>Running</td>
+                                                <td>18h00 - 19h00</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-danger" onclick="alert('Séance annulée !')">
+                                                        <i class="fas fa-times"></i> Annuler
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>25 mars 2025</strong></td>
+                                                <td>Weightlifting</td>
+                                                <td>10h30 - 11h30</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-danger" onclick="alert('Séance annulée !')">
+                                                        <i class="fas fa-times"></i> Annuler
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -374,7 +410,54 @@
                 </div>
                 <div class="card-body">
                     <div id="sessions-list">
-                        <p>Chargement de vos séances...</p>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Sport</th>
+                                        <th>Horaires</th>
+                                        <th>Notes</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>20 mars 2025</strong></td>
+                                        <td>Running</td>
+                                        <td>18h00 - 19h00</td>
+                                        <td>Séance d'endurance - parc municipal</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="alert('Séance annulée !')">
+                                                <i class="fas fa-times"></i> Annuler
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>25 mars 2025</strong></td>
+                                        <td>Weightlifting</td>
+                                        <td>10h30 - 11h30</td>
+                                        <td>Salle de musculation - focus jambes et dos</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="alert('Séance annulée !')">
+                                                <i class="fas fa-times"></i> Annuler
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>28 mars 2025</strong></td>
+                                        <td>Course à pied</td>
+                                        <td>18h00 - 19h00</td>
+                                        <td>Entraînement fractionné</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="alert('Séance annulée !')">
+                                                <i class="fas fa-times"></i> Annuler
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
