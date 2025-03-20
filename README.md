@@ -1,3 +1,4 @@
+
 # Sportivas - Application de Prévention Santé et Motivation Sportive
 
 ## 🎯 Présentation du projet
@@ -11,17 +12,17 @@ Sportivas est une application web de prévention santé et motivation sportive d
 
 - **Questionnaire quotidien** :
   - Enregistrement du ressenti quotidien (😊 / 😐 / 😞)
-  
+
 - **Gestion des sports** :
   - Ajout et suppression de sports préférés
-  
+
 - **Gestion des blessures** :
   - Enregistrement des blessures (zone du corps, type de douleur, date)
-  
+
 - **Suivi de performances** :
   - Enregistrement des performances (pas, calories, distance)
   - Calcul de points de performance (gamification)
-  
+
 - **Planning sportif** :
   - Ajout de séances sportives au calendrier
   - Suggestions de sports
@@ -69,6 +70,16 @@ cd sportivas
 ./mvnw spring-boot:run
 ```
 
+## 📥 Import des données d'activités
+
+Pour importer les données des activités via un fichier JSON, exécutez la commande suivante :
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d @activites.json http://localhost:8080/api/activities/import
+```
+
+Assurez-vous que le fichier `activites.json` est bien présent dans le répertoire courant.
+
 ## 🔑 Informations de connexion par défaut
 
 - **Identifiant** : 123456789
@@ -87,3 +98,4 @@ La documentation Swagger/OpenAPI est disponible à l'adresse :
 - Injuries : `/api/injuries/**`
 - Performances : `/api/performances/**`
 - Sessions : `/api/sessions/**`
+- Activities : `/api/activities/**`
