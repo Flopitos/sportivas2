@@ -14,6 +14,14 @@ window.quizModule = {
     setupEventListeners() {
         // Écouteur pour les boutons de ressenti
         document.addEventListener('click', (e) => {
+
+            // Gestion des boutons de type de fatigue
+            if (e.target.classList.contains('fatigue-btn')) {
+                const fatigue = e.target.dataset.fatigue;
+                this.answers.fatigue = fatigue;
+                this.nextStep();
+            }
+
             // Gestion des boutons de ressenti
             if (e.target.classList.contains('feeling-btn')) {
                 const feeling = e.target.dataset.feeling;
@@ -199,7 +207,62 @@ window.quizModule = {
 
     // Passer à l'étape suivante du quiz
     nextStep() {
-        this.showStep(this.currentStep + 1);
+        switch (this.currentStep) {
+            case 0:
+                switch (this.answers.feeling) {
+                    case 'Fatiguer':
+                        this.showStep(1); // Aller à la question sur le type de fatigue
+                        break;
+                    case 'Malade':
+                        this.completeQuiz(); // Terminer le quiz si malade
+                        break;
+                    default:
+                        this.showStep(3) // Aller à blessure le quiz pour "Bien" ou "Normal"
+                        break;
+                }
+                break;
+
+            case 1:
+                switch (this.answers.fatigue) {
+                    case 'physique':
+                        this.completeQuiz(); // terminer sur les douleurs physiques
+                        break;
+                    case 'moral':
+                        this.showStep(2); // Aller à la question sur les douleurs morales
+                        break;
+                }
+                break;
+
+            case 2:
+                switch (this.answers.moralDouleurs) {
+                    case 'Oui':
+                        this.completeQuiz();
+                        break;
+                    case 'Courbatures':
+                        this.completeQuiz(); // Aller à la question sur la zone des douleurs
+                        break;
+                    case 'Non':
+                        this.completeQuiz(); // Terminer le quiz si pas de douleurs morales
+                        break;
+                }
+                break;
+
+            case 3:
+                switch (this.answers.blessure) {
+                    case 'Non':
+                        this.completeQuiz(); // Terminer le quiz si pas de douleurs physiques
+                        break;
+                    case 'Courbature':
+                    case 'Oui':
+                        this.showStep(4); // Aller à la question sur la zone des douleurs
+                        break;
+                }
+                break;
+
+            default:
+                this.showStep(this.currentStep + 1);
+                break;
+        }
     },
 
     // Compléter le quiz
